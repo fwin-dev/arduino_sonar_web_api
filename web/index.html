@@ -43,9 +43,7 @@ rect {
 	var svg = d3.select("body").append("svg") 
 		.attr("viewBox", "0 0 " + width + " " + height)
 		.attr("preserveAspectRatio", "xMinYMin meet")
-		.attr("transform", "translate(" + r + "," + r +") rotate(180) scale(-1, -1)")
-		.on("mousemove", mousemove)
-	    .on("mousedown", mousedown);
+		.attr("transform", "translate(" + r + "," + r +") rotate(180) scale(-1, -1)");
 
 	svg.append("rect")
 	    .attr("width", width)

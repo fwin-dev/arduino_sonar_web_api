@@ -10,7 +10,7 @@ web_server.listen(web_port);
 
 // send clients to index page
 app.get('/', function (req, res) {
-	res.sendfile(__dirname + '/index.html');
+	res.sendFile(__dirname + '/web/index.html');
 });
 
 // on new IO connections

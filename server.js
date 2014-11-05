@@ -21,17 +21,17 @@ io.on('connection', function (socket) {
 
 var updateSonarData = function(data) {
 	// if new sonar
-	if(!sonar_data[data.id]){
-		sonar_data[data.id] = {};
+	if(!sonar_data[data.i]){
+		sonar_data[data.i] = {};
 	}
 
 	// only update what has changed
-	if(data.hears){
-		sonar_data[data.id].hears = data.hears;
+	if(data.h){
+		sonar_data[data.i].hears = data.h;
 	}
 
-	if(data.dist){
-		sonar_data[data.id].dist = data.dist;
+	if(data.d){
+		sonar_data[data.i].dist = data.d;
 	}
 
 };

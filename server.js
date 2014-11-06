@@ -13,6 +13,14 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/web/index.html');
 });
 
+app.get('/index.html', function (req, res) {
+	res.sendFile(__dirname + '/web/index.html');
+});
+
+app.get('/d3.v3.min.js', function (req, res) {
+	res.sendFile(__dirname + '/web/d3.v3.min.js');
+});
+
 // on new IO connections
 io.on('connection', function (socket) {
 	// Emit existing sonar data
@@ -46,6 +54,8 @@ var tcp_server = net.createServer(function(c) {
 	c.on('data', function(data) {
 		var recvData = data.toString().trim();
 		
+		console.log("Recv data: " + recvData);
+
 		try {
 			var parsedObj = JSON.parse(recvData);
 

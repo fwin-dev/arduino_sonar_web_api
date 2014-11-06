@@ -37,13 +37,13 @@ rect {
 }
 
 .link {
-	stroke: #D7D7D7;
+	stroke: #BBBBBB;
 	stroke-width: 2px;
 }
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="/d3.v3.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 	
@@ -283,7 +283,7 @@ rect {
 		force.start();
 	}
 
-	var socket = io('http://localhost');
+	var socket = io('http://192.168.191.40');
 	
 	socket.on('old sonar', function (data) {
 		for(var prop in data){

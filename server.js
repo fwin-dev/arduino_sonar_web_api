@@ -27,11 +27,11 @@ var updateSonarData = function(data) {
 
 	// only update what has changed
 	if(data.h){
-		sonar_data[data.i].hears = data.h;
+		sonar_data[data.i].h = data.h;
 	}
 
 	if(data.d){
-		sonar_data[data.i].dist = data.d;
+		sonar_data[data.i].d = data.d;
 	}
 
 };

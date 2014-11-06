@@ -91,14 +91,14 @@ rect {
 		var found = false;
 
 		// If sonar "hears" another "id" then link it with that "id"
-		if(sonarData.hears){
+		if(sonarData.h){
 			// Get "hears" id
 			var target = null, source = null;
 			for(var i = 0; i < nodes.length; i++){
-				if(nodes[i].id == sonarData.hears){
+				if(nodes[i].i == sonarData.h){
 					target = nodes[i];
 				}
-				if(nodes[i].id == sonarData.id){
+				if(nodes[i].i == sonarData.i){
 					source = nodes[i];
 				}
 			}
@@ -139,26 +139,26 @@ rect {
 			}
 		}
 		// if sonar has "dist" then link it with the primary node
-		if(sonarData.dist){
+		if(sonarData.d){
 			var textNodes = svg.selectAll(".textNode");
 
 			// If node exists, update it...
 			for(var i = 0; i < nodes.length; i++){
-				if(nodes[i].id == sonarData.id){
+				if(nodes[i].i == sonarData.i){
 					// Update text
-					svg.select("#" + nodes[i].id)
-						.text(nodes[i].dist)
+					svg.select("#" + nodes[i].i)
+						.text(nodes[i].d)
 						.transition()
 					    .duration(1000)
 						.tween("text", function(d) {
-							var i = d3.interpolate(this.textContent, sonarData.dist);
+							var i = d3.interpolate(this.textContent, sonarData.d);
 							return function(t) {
 								this.textContent = Math.round(i(t));
 							}
 						});
 					
 					// update old value
-					nodes[i].dist = sonarData.dist;
+					nodes[i].d = sonarData.d;
 
 					//textNodes[0][i-1].innerHTML = sonarData.dist;
 
@@ -176,12 +176,12 @@ rect {
 					y = masterNode.y;
 
 				// New dist
-				var x2 = sonarData.dist * x,
-					y2 = sonarData.dist * y;
+				var x2 = sonarData.d * x,
+					y2 = sonarData.d * y;
 				var dist = Math.sqrt(x2 + y2);
 
 				// else add new
-				var node = {x: Math.round(x + (Math.random() * 2)), y: Math.round(y + (Math.random() * 2)), dist: sonarData.dist, id: sonarData.id};
+				var node = {x: Math.round(x + (Math.random() * 2)), y: Math.round(y + (Math.random() * 2)), d: sonarData.d, i: sonarData.i};
 				nodes.push(node);
 				links.push({source: node, target: masterNode});
 			}
@@ -229,11 +229,11 @@ rect {
 		link.enter().insert("line", ".node")
 			.attr("class", "link")
 			.attr("stroke-dasharray", function(d){
-				if(d.target.id !== undefined){
+				if(d.target.i !== undefined){
 					console.log(d);
 					// does the target.id already have a link to this source.id
 					for (var i = 0; i < links.length; i++) {
-						if(links[i].source.id == d.target.id && links[i].target.id == d.source.id){
+						if(links[i].source.i == d.target.i && links[i].target.i == d.source.i){
 							// the target.id has a link already
 							return "5, 1";
 						}
@@ -262,18 +262,18 @@ rect {
 			nodeEnter.append("text")
 				.attr("class", "textId")
 				.attr("dy", "1.4em")
-				.text(function(d) { return d.id + " - "; });
+				.text(function(d) { return d.i + " - "; });
 
 			nodeEnter.append("text")
 				.attr("class", "textDist")
-				.attr("id", function(d){ return d.id; })
+				.attr("id", function(d){ return d.i; })
 				.attr("dy", "1.4em")
 				.attr("dx", ".2em")
 				.text(0)
 				.transition()
 			    .duration(1000)
 				.tween("text", function(d) {
-					var i = d3.interpolate(this.textContent, d.dist);
+					var i = d3.interpolate(this.textContent, d.d);
 					return function(t) {
 						this.textContent = Math.round(i(t));
 					}
@@ -289,10 +289,10 @@ rect {
 		for(var prop in data){
 			if(data.hasOwnProperty(prop)) {
 				var sonarData = {};
-				sonarData.id = prop;
+				sonarData.i = prop;
 
-				if(data[prop].dist){
-					sonarData.dist = data[prop].dist;
+				if(data[prop].d){
+					sonarData.d = data[prop].d;
 				}
 
 				processSonar(sonarData);
@@ -303,10 +303,10 @@ rect {
 		for(var prop in data){
 			if(data.hasOwnProperty(prop)) {
 				var sonarData = {};
-				sonarData.id = prop;
+				sonarData.i = prop;
 
-				if(data[prop].hears){
-					sonarData.hears = data[prop].hears;
+				if(data[prop].h){
+					sonarData.h = data[prop].h;
 				}
 
 				processSonar(sonarData);

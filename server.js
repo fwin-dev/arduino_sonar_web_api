@@ -11,14 +11,12 @@ web_server.listen(web_port);
 // send clients to index page
 app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/web/index.html');
-});
-
-app.get('/index.html', function (req, res) {
+}).get('/index.html', function (req, res) {
 	res.sendFile(__dirname + '/web/index.html');
-});
-
-app.get('/d3.v3.min.js', function (req, res) {
+}).get('/d3.v3.min.js', function (req, res) {
 	res.sendFile(__dirname + '/web/d3.v3.min.js');
+}).get('/jquery.min.js', function (req, res) {
+	res.sendFile(__dirname + '/web/jquery.min.js');
 });
 
 // on new IO connections

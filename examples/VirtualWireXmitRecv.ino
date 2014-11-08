@@ -89,9 +89,29 @@ void loop() {
     Serial.print("Got: ");
     Serial.println((char *)recvbuf);
     
+    // create a String so that we can more easily pull out a substring
     String s = String((char *)recvbuf);
+    
+    // we want to get just the NAME from the received string
+    // so if we receive some JSON like this:
+    //   {"i":"joe4", "d":97, "h":"herman789"}
+    // All we care about is the joe4 part
+    //
+    //   {"i":"joe4", "d":97, "h":"herman789"}
+    //   0123456789012345678901234567890123456
+    //
+    // in other words, we want characters 6 to 9 in the above example (starting with 0)
+    
+    // we know that the begiginning of or NAME is always 6 but we need to find the end character
+    // The indexOf method will search for a character starting any where in the String.
+    // So we want to find the quote at the end of the NAME. Start search at character position 6
     int idEnd = s.indexOf('"', 6);
+    
+    // now pull out a substring from character 6 to the end.
+    // we substract 1 cause we don't want the quote at the end but the character before it
+    s = s.substring(6, idEnd-1);
     s.toCharArray((char *)recvbuf, recvbuflen);
+    Serial.println(s);
     
     // build a partial JSON string
     sprintf(recvmsg, "\"h\":\"%s\"", recvbuf);
@@ -150,7 +170,7 @@ void loop() {
 
   // if we recvd data, add that to JSON
   if (msgrecvd) {
-    sprintf(msg, "%s,%s\"}", msg, recvmsg);
+    sprintf(msg, "%s,%s}", msg, recvmsg);
  
   // else just close up JSON
   } else {

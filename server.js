@@ -17,12 +17,22 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/web/d3.v3.min.js');
 }).get('/jquery.min.js', function (req, res) {
 	res.sendFile(__dirname + '/web/jquery.min.js');
+}).get('/jquery.jsonview.js', function (req, res) {
+	res.sendFile(__dirname + '/web/jquery.jsonview.js');
+}).get('/jquery.jsonview.css', function (req, res) {
+	res.sendFile(__dirname + '/web/jquery.jsonview.css');
+}).get('/jquery.ui.min.js', function (req, res) {
+	res.sendFile(__dirname + '/web/jquery.ui.min.js');
 });
 
 // on new IO connections
 io.on('connection', function (socket) {
 	// Emit existing sonar data
 	socket.emit('old sonar', sonar_data);
+
+	socket.on('reset data', function(){
+		resetSonarData();
+	});
 });
 
 var updateSonarData = function(data) {
@@ -40,6 +50,10 @@ var updateSonarData = function(data) {
 		sonar_data[data.i].d = data.d;
 	}
 
+};
+
+var resetSonarData = function(){
+	sonar_data = {};
 };
 
 // Create simple TCP server

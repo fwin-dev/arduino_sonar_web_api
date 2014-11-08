@@ -2,14 +2,13 @@
 <meta charset="utf-8">
 <style>
 
-@import url(http://fonts.googleapis.com/css?family=Ubuntu:400,700);
-
 html, body {
-	font-family: 'Ubuntu';
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	margin: 0;
 	padding: 0;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 rect {
@@ -60,10 +59,13 @@ rect {
 }
 
 #right_cont {
+	position: absolute;
+	right: 0;
 	width: 300px;
 	height: 100%;
-	float: right;
 	background: rgba(226, 213, 248, 0.25);
+	z-index: 999;
+	box-shadow: 0px 0px 22px 2px rgba(0,0,0,0.1);
 }
 
 .cont .title {
@@ -83,8 +85,11 @@ rect {
 .cont .content {
 	width: 100%;
 	height: 100%;
-	padding: 2px 5px;
 	box-sizing: border-box;
+}
+
+form {
+	padding: 2px 5px;
 }
 
 form input, form button {
@@ -97,12 +102,43 @@ form input, form button {
 	font-size: 12px;
 	box-sizing: border-box;
 	width: 100%;
+	cursor: pointer;
+	background: #fff;
+}
+
+form button:hover {
+	background: #f7f7f7;
+}
+
+#raw_json_log {
+	position: absolute;
+	overflow-y: scroll;
+	padding-bottom: 100px;
+}
+
+.json_output {
+	background: #CFC0FF;
+}
+
+.json_output:last-child {
+	margin-bottom: 50px;
 }
 
 </style>
+<link rel="stylesheet" href="/jquery.jsonview.css">
 <body>
 <div id="left_cont"></div>
 <div id="right_cont">
+	<div class="cont">
+		<div class="title">
+			<h4>Server Settings</h4>
+		</div>
+		<div class="content">
+			<form>
+				<button id="btn_reset_server">Reset server</button>
+			</form>
+		</div>
+	</div>
 	<div class="cont">
 		<div class="title">
 			<h4>Real-time Log</h4>
@@ -113,50 +149,64 @@ form input, form button {
 </div>
 <script src="/d3.v3.min.js"></script>
 <script src="/jquery.min.js"></script>
+<script src="/jquery.ui.min.js"></script>
+<script src="/jquery.jsonview.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-	var width = $("body").width(),
-    height = $("body").height(),
-    r = $("body").height();
 
-    var mLinkNum = {};
+	//Setup json view
+	$(".json_output").JSONView('collapse');
+	var jsonOutputIds = 0, width, height, r, mLinkNum, fill, zoom, force, svg, nodes, links, node, link;
 
-	var fill = d3.scale.category20();
-	var zoom = d3.behavior.zoom("svg");
+	function initSVG(){
 
-	var force = d3.layout.force()
-	    .size([width, height])
-	    .nodes([{}]) // initialize with a single node
-	    .linkDistance(function(l){
-	    	return Math.round(l.source.d * 1.5);
-	    })
-		//.linkDistance(150)
-	    .gravity(0.15)
-	    .friction(0.6)
-	    .charge(function(n){
-	    	var r = randomNumberBetween(3000, 4000) * -1;
-	    	return r;
-	    })
-	    .on("tick", tick);
+		width = $("body").width(),
+	    height = $("body").height(),
+	    r = $("body").height();
 
-	var svg = d3.select("#left_cont").append("svg") 
-		.attr("viewBox", "0 0 " + width + " " + height)
-		.attr("preserveAspectRatio", "xMinYMin meet")
-		.attr("transform", "translate(" + r + "," + r +") rotate(180) scale(-1, -1)");
+	    mLinkNum = {};
 
-	svg.append("rect")
-	    .attr("width", width)
-	    .attr("height", height);
+		fill = d3.scale.category20();
+		zoom = d3.behavior.zoom("svg");
 
-	var nodes = force.nodes(),
-	    links = force.links(),
-	    node = svg.selectAll(".node"),
-	    link = svg.selectAll(".link");
+		force = d3.layout.force()
+		    .size([width, height])
+		    .nodes([{}]) // initialize with a single node
+		    .linkDistance(function(l){
+		    	return Math.round(l.source.d * 1.5);
+		    })
+			//.linkDistance(150)
+		    .gravity(0.15)
+		    .friction(0.6)
+		    .charge(function(n){
+		    	var r = randomNumberBetween(3000, 4000) * -1;
+		    	return r;
+		    })
+		    .on("tick", tick);
+
+		svg = d3.select("#left_cont").append("svg") 
+			.attr("viewBox", "0 0 " + width + " " + height)
+			.attr("preserveAspectRatio", "xMinYMin meet")
+			.attr("transform", "translate(" + r + "," + r +") rotate(180) scale(-1, -1)");
+
+		svg.append("rect")
+		    .attr("width", width)
+		    .attr("height", height);
+
+		nodes = force.nodes(),
+		    links = force.links(),
+		    node = svg.selectAll(".node"),
+		    link = svg.selectAll(".link");
 
 
-	restart();
+		restart();
+	}
 
 	function processSonar(sonarData) {
+		if(sonarData.d || sonarData.h){
+			outputToLogs(sonarData);
+		}
+
 		var found = false;
 
 		// If sonar "hears" another "id" then link it with that "id"
@@ -383,8 +433,12 @@ form input, form button {
 		}
 	});
 	socket.on('new sonar', function (data){
-		$('#raw_json_log').append(JSON.parse(data));
 		processSonar(data);
+	});
+
+	$("#btn_reset_server").click(function(e){
+		e.preventDefault();
+		resetServer();
 	});
 
 	function getRandomColor() {
@@ -399,6 +453,28 @@ form input, form button {
 	function randomNumberBetween(min, max){
 		return Math.floor(Math.random() * max) + min;
 	}
+
+	function outputToLogs(data) {
+		$('#raw_json_log').append("<div class='json_output' id='json_"+jsonOutputIds+"'></div>");
+		$('#json_' + jsonOutputIds).JSONView(data);
+
+		jsonOutputIds++;
+
+		$("#raw_json_log").animate({ scrollTop: $(document).height() }, "slow", function(){
+			$('.json_output').last().animate({'backgroundColor': "transparent"}, 150);
+		});
+	}
+
+	function resetServer(){
+		socket.emit('reset data');
+		$("#raw_json_log").html('');
+
+		d3.select("#left_cont").html("");
+
+		initSVG();
+	}
+
+	initSVG();
 
 </script>
 </body>
